@@ -275,10 +275,10 @@ function(n){for(;!function(l){return l===l.parent || l.parent.__Cypress__}(l)&&f
       const replacer = security.stripStream()
 
       replacer.pipe(concat({ encoding: 'string' }, (str) => {
-        str = str.trim()
+        const string = str.toString().trim()
 
         try {
-          expect(str).to.eq(expected)
+          expect(string).to.eq(expected)
 
           done()
         } catch (err) {
