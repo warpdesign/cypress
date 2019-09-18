@@ -230,7 +230,7 @@ function(n){for(;!function(l){return l===l.parent || l.parent.__Cypress__}(l)&&f
           const downloadFile = () => {
             return rp(url)
             .then((resp) => {
-              Promise.fromCallback((cb) => {
+              return Promise.fromCallback((cb) => {
                 fs.writeFile(pathToLib, resp, cb)
               })
               .return(resp)
@@ -242,8 +242,6 @@ function(n){for(;!function(l){return l===l.parent || l.parent.__Cypress__}(l)&&f
           })
           .catch(downloadFile)
           .then((libCode) => {
-            libCode = libCode.toString()
-
             let stripped = security.strip(libCode)
             // nothing should have changed!
 
