@@ -242,6 +242,8 @@ function(n){for(;!function(l){return l===l.parent || l.parent.__Cypress__}(l)&&f
           })
           .catch(downloadFile)
           .then((libCode) => {
+            libCode = libCode.toString()
+
             let stripped = security.strip(libCode)
             // nothing should have changed!
 
