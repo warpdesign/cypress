@@ -6,7 +6,6 @@ rp            = require("request-promise")
 Promise       = require("bluebird")
 evilDns       = require("evil-dns")
 httpsServer   = require("#{root}../https-proxy/test/helpers/https_server")
-buffers       = require("#{root}lib/util/buffers")
 config        = require("#{root}lib/config")
 Server        = require("#{root}lib/server")
 Fixtures      = require("#{root}test/support/helpers/fixtures")
@@ -65,36 +64,28 @@ describe "Server", ->
             }
             rp(options)
 
-          open = =>
-            Promise.all([
-              ## open our https server
-              httpsServer.start(8443),
+          return Promise.all([
+            ## open our https server
+            httpsServer.start(8443),
 
-              ## and open our cypress server
-              @server = Server()
+            ## and open our cypress server
+            @server = Server()
 
-              @server.open(cfg)
-              .spread (port) =>
-                if initialUrl
-                  @server._onDomainSet(initialUrl)
+            @server.open(cfg)
+            .spread (port) =>
+              if initialUrl
+                @server._onDomainSet(initialUrl)
 
-                @srv = @server.getHttpServer()
+              @srv = @server.getHttpServer()
 
-                # @session = new (Session({app: @srv}))
+              # @session = new (Session({app: @srv}))
 
-                @proxy = "http://localhost:" + port
+              @proxy = "http://localhost:" + port
 
-                @fileServer = @server._fileServer.address()
-            ])
+              @buffers = @server._networkProxy.http.buffers
 
-          if @server
-            Promise.join(
-              httpsServer.stop()
-              @server.close()
-            )
-            .then(open)
-          else
-            open()
+              @fileServer = @server._fileServer.address()
+          ])
 
     afterEach ->
       nock.cleanAll()
@@ -178,7 +169,7 @@ describe "Server", ->
             cookies: []
           })
 
-          expect(buffers.keys()).to.deep.eq(["http://localhost:2000/index.html"])
+          expect(@buffers.keys()).to.deep.eq(["http://localhost:2000/index.html"])
         .then =>
           @server._onResolveUrl("/index.html", {}, @automationRequest)
           .then (obj = {}) =>
@@ -203,7 +194,7 @@ describe "Server", ->
             expect(res.body).to.include("document.domain")
             expect(res.body).to.include("localhost")
             expect(res.body).to.include("Cypress")
-            expect(buffers.keys()).to.deep.eq([])
+            expect(@buffers.keys()).to.deep.eq([])
 
       it "can follow static file redirects", ->
         @server._onResolveUrl("/sub", {}, @automationRequest)
@@ -274,13 +265,13 @@ describe "Server", ->
             cookies: []
           })
 
-          expect(buffers.keys()).to.deep.eq(["http://localhost:2000/index.html"])
+          expect(@buffers.keys()).to.deep.eq(["http://localhost:2000/index.html"])
         .then =>
           @rp("http://localhost:2000/index.html")
-          .then (res) ->
+          .then (res) =>
             expect(res.statusCode).to.eq(200)
 
-            expect(buffers.keys()).to.deep.eq([])
+            expect(@buffers.keys()).to.deep.eq([])
 
     describe "http", ->
       beforeEach ->
@@ -535,7 +526,7 @@ describe "Server", ->
             ]
           })
 
-          expect(buffers.keys()).to.deep.eq(["http://espn.go.com/"])
+          expect(@buffers.keys()).to.deep.eq(["http://espn.go.com/"])
         .then =>
           @server._onResolveUrl("http://espn.com/", {}, @automationRequest)
           .then (obj = {}) =>
@@ -562,7 +553,7 @@ describe "Server", ->
             expect(res.body).to.include("document.domain")
             expect(res.body).to.include("go.com")
             expect(res.body).to.include("Cypress.action('app:window:before:load', window); </script></head><body>espn</body></html>")
-            expect(buffers.keys()).to.deep.eq([])
+            expect(@buffers.keys()).to.deep.eq([])
 
       it "does not buffer 'bad' responses", ->
         sinon.spy(@server._request, "sendStream")
@@ -661,7 +652,7 @@ describe "Server", ->
         })
 
         @server._onResolveUrl("http://getbootstrap.com/#/foo", {}, @automationRequest)
-        .then (obj = {}) ->
+        .then (obj = {}) =>
           expectToEqDetails(obj, {
             isOkStatusCode: true
             isHtml: true
@@ -674,13 +665,13 @@ describe "Server", ->
             cookies: []
           })
 
-          expect(buffers.keys()).to.deep.eq(["http://getbootstrap.com/"])
+          expect(@buffers.keys()).to.deep.eq(["http://getbootstrap.com/"])
         .then =>
           @rp("http://getbootstrap.com/")
-          .then (res) ->
+          .then (res) =>
             expect(res.statusCode).to.eq(200)
 
-            expect(buffers.keys()).to.deep.eq([])
+            expect(@buffers.keys()).to.deep.eq([])
 
       it "can serve non 2xx status code requests when option set", ->
         nock("http://google.com")
