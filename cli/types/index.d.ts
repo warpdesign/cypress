@@ -2313,6 +2313,11 @@ declare namespace Cypress {
      *    })
      */
     auth: Auth
+
+    /**
+     * Query parameters to append to the `url` of the request.
+     */
+    qs: object
   }
 
   /**
