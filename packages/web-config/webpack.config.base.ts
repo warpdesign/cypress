@@ -71,7 +71,7 @@ const config: webpack.Configuration = {
             presets: [
               require.resolve('@babel/preset-env'),
               require.resolve('@babel/preset-react'),
-              require.resolve('@babel/preset-typescript'),
+              [require.resolve('@babel/preset-typescript'), { allowNamespaces: true }],
             ],
             babelrc: false,
           },

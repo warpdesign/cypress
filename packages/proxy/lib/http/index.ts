@@ -38,7 +38,7 @@ type HttpMiddlewareCtx<T> = {
   middleware: HttpMiddlewareStacks
 } & T
 
-type ServerCtx = Readonly<{
+export type ServerCtx = Readonly<{
   config: CyServer.Config
   getRemoteState: CyServer.getRemoteState
   netStubbingState: NetStubbingState
@@ -177,9 +177,14 @@ export class Http {
   netStubbingState: NetStubbingState
   socket: CyServer.Socket
 
-  constructor (opts: ServerCtx | { middleware?: HttpMiddlewareStacks }) {
+  constructor (opts: ServerCtx & { middleware?: HttpMiddlewareStacks }) {
     this.buffers = new HttpBuffers()
 
+    this.config = opts.config
+    this.getRemoteState = opts.getRemoteState
+    this.middleware = opts.middleware
+    this.netStubbingState = opts.netStubbingState
+    this.socket = opts.socket
     _.assign(this, opts)
 
     if (typeof opts.middleware === 'undefined') {
