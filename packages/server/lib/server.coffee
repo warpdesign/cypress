@@ -16,7 +16,7 @@ compression  = require("compression")
 debug        = require("debug")("cypress:server:server")
 { agent, blacklist, cors, uri } = require("@packages/network")
 { NetworkProxy } = require("@packages/proxy")
-{ NetStubbingState } = require("@packages/net-stubbing/server")
+{ netStubbingState } = require("@packages/net-stubbing/server")
 origin       = require("./util/origin")
 ensureUrl    = require("./util/ensure-url")
 appData      = require("./util/app_data")
@@ -140,21 +140,23 @@ class Server
       @_request = Request({timeout: config.responseTimeout})
       @_nodeProxy = httpProxy.createProxyServer()
 
-      @_netStubbingState = NetStubbingState()
-
       getRemoteState = => @_getRemoteState()
 
-      @_networkProxy = new NetworkProxy({ config, getRemoteState })
+      @createNetworkProxy(config, getRemoteState)
 
       @createHosts(config.hosts)
 
-<<<<<<< HEAD
-      @createRoutes(app, config, @_request, getRemoteState, project)
-=======
       @createRoutes(app, config, @_request, getRemoteState, project, @_networkProxy)
->>>>>>> origin/refactor-proxy
 
       @createServer(app, config, project, @_request, onWarning)
+
+  createNetworkProxy: (config, getRemoteState) ->
+    @_netStubbingState = netStubbingState()
+
+    @_networkProxy = new NetworkProxy({
+      config,
+      getRemoteState,
+    })
 
   createHosts: (hosts = {}) ->
     _.each hosts, (ip, host) ->
