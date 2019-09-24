@@ -6,7 +6,7 @@ import { Request } from 'request'
 
 const debug = debugModule('cypress:proxy:http:error-middleware')
 
-type ErrorMiddleware = HttpMiddleware<{
+export type ErrorMiddleware = HttpMiddleware<{
   error: Error
   incomingResStream?: Readable
   outgoingReq?: Request

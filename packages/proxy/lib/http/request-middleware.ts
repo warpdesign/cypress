@@ -5,7 +5,7 @@ import { InterceptRequest } from '@packages/net-stubbing/server'
 import debugModule from 'debug'
 import { HttpMiddleware } from '.'
 
-type RequestMiddleware = HttpMiddleware<{
+export type RequestMiddleware = HttpMiddleware<{
   outgoingReq: any
 }>
 
@@ -22,10 +22,6 @@ const LogRequest : RequestMiddleware = function () {
   })
 
   this.next()
-}
-
-const NetStubbingIntercept : RequestMiddleware = function () {
-  InterceptRequest(this.netStubbingState, this.socket, this.req, this.res, this.next)
 }
 
 const RedirectToClientRouteIfUnloaded : RequestMiddleware = function () {
@@ -157,7 +153,7 @@ const SendRequestOutgoing : RequestMiddleware = function () {
 
 export default {
   LogRequest,
-  NetStubbingIntercept,
+  InterceptRequest,
   RedirectToClientRouteIfUnloaded,
   RedirectToClientRouteIfNotProxied,
   EndRequestsToBlacklistedHosts,
