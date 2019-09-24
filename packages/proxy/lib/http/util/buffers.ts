@@ -2,7 +2,7 @@ import _ from 'lodash'
 import debugModule from 'debug'
 import { uri } from '@packages/network'
 import { Readable } from 'stream'
-import { Response } from 'express'
+import { IncomingMessage } from 'http'
 
 const debug = debugModule('cypress:proxy:http:util:buffers')
 
@@ -10,7 +10,7 @@ export type HttpBuffer = {
   details: object
   jar: any
   originalUrl: string
-  response: Response
+  response: IncomingMessage
   stream: Readable
   url: string
 }
