@@ -139,6 +139,7 @@ class Server
       ## TODO: might not be needed anymore
       @_request = Request({timeout: config.responseTimeout})
       @_nodeProxy = httpProxy.createProxyServer()
+      @_socket = Socket(config)
 
       getRemoteState = => @_getRemoteState()
 
@@ -154,6 +155,8 @@ class Server
     @_netStubbingState = netStubbingState()
 
     @_networkProxy = new NetworkProxy({
+      socket: @_socket
+      netStubbingState: @_netStubbingState
       config,
       getRemoteState,
     })
@@ -735,7 +738,6 @@ class Server
     options.onRequest    = @_onRequest.bind(@)
     options.netStubbingState = @_netStubbingState
 
-    @_socket = Socket(config)
     @_socket.startListening(@_server, automation, config, options)
     @_normalizeReqUrl(@_server)
     # handleListeners(@_server)
